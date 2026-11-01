@@ -29,15 +29,6 @@ Unified bottom chrome for pi: a dashboard, a framed editor and a one-line status
 share the same data and theme. Hides itself on terminals narrower than 80 columns or shorter
 than 30 rows.
 
-```
-▏ ⠋ working · bash npm test 3.2s · edit server.go 1.1s                 queued
-▏ main* ↑1 ↓2 · 3 changed · +142 −38                            last turn 1.2s
-╭─ ⠋ working · deepseek-flash · high ──────────────────────── bash npm test 3.2s ─╮
-│ hello world                                                                      │
-╰─ ~/project · main* ↑1 ↓2 · ±3 · +142 −38 ──────────────── my session · 12m 04s ─╯
-ctx 34% ███░░░░░░ · ↑12.3k ↓4.1k · 34 t/s · avg 28 · ⟳ 82% · $0.042           10:42
-```
-
 ![bottom chrome in pi](assets/bottom.png)
 
 `/bottom` toggles and configures the pieces, `f2` toggles the dashboard. The full command and
@@ -48,6 +39,8 @@ config reference is in [`extensions/bottom/README.md`](extensions/bottom/README.
 Replaces the built-in tool call rows for `read`, `bash`, `edit`, `write`, `grep`, `find` and `ls`
 with one compact line each — label, target, the facts that matter (`+142 −38`, match counts, line
 ranges, exit status) — and keeps the detail behind the usual expand.
+
+![log-style tool rows](assets/log-style.png)
 
 ### `web-search`
 
