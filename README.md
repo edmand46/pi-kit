@@ -38,6 +38,8 @@ than 30 rows.
 ctx 34% ███░░░░░░ · ↑12.3k ↓4.1k · 34 t/s · avg 28 · ⟳ 82% · $0.042           10:42
 ```
 
+![bottom chrome in pi](assets/bottom.png)
+
 `/bottom` toggles and configures the pieces, `f2` toggles the dashboard. The full command and
 config reference is in [`extensions/bottom/README.md`](extensions/bottom/README.md).
 

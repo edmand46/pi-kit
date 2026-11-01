@@ -12,6 +12,7 @@
     "@earendil-works/pi-tui": "*"
   },
   "pi": {
+    "image": "./assets/bottom.png",
     "extensions": [
       "./extensions/log-style.ts",
       "./extensions/web-search.ts",
