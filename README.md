@@ -1,7 +1,7 @@
 # pi-kit
 
 My [pi](https://github.com/earendil-works/pi-coding-agent) setup as one package: the bottom
-chrome, compact tool rows, web search, and the skills I work with.
+chrome, compact tool rows, idle compaction, web search, and the skills I work with.
 
 ## Install
 
@@ -41,6 +41,25 @@ with one compact line each — label, target, the facts that matter (`+142 −38
 ranges, exit status) — and keeps the detail behind the usual expand.
 
 ![log-style tool rows](assets/log-style.png)
+
+### `idle-compact`
+
+Compacts the session when you leave it alone, so the prompt cache is still hot and you come back to
+a small context instead of a long one. The timer starts when the agent settles, and any input
+resets it.
+
+It compacts once per idle stretch, and only when the context is at least `minTokens` and has grown
+since the last idle compact — an empty or already small session is left alone. The summary is
+written for continuation: what we are working on, the decisions and why, the files touched, the
+next steps and the open questions. Successful compacts leave one dim `idle compact · 15 min idle ·
+84k → 12k tokens` line in the transcript; a failed one leaves the error there and is not retried
+until you are back. TUI only.
+
+Config is optional and lives in `~/.pi/agent/idle-compact.json`:
+
+```json
+{ "idleMinutes": 15, "minTokens": 20000 }
+```
 
 ### `web-search`
 
