@@ -1,7 +1,7 @@
 # pi-kit
 
 My [pi](https://github.com/earendil-works/pi-coding-agent) setup as one package: the bottom
-chrome, compact tool rows, idle compaction, web search, and the skills I work with.
+chrome, compact tool rows, idle compaction and the skills I work with.
 
 ## Install
 
@@ -61,16 +61,6 @@ Config is optional and lives in `~/.pi/agent/idle-compact.json`:
 { "idleMinutes": 15, "minTokens": 20000 }
 ```
 
-### `web-search`
-
-Adds a `web_search` tool returning titles, URLs and snippets. Brave first, DeepSeek as fallback;
-`provider` picks one explicitly.
-
-| Key | Where it comes from |
-| --- | --- |
-| Brave | `BRAVE_SEARCH_API_KEY` in the environment |
-| DeepSeek | the pi credential (`pi auth login deepseek`), `DEEPSEEK_API_KEY` as fallback |
-
 ## Skills
 
 | Skill | What it does |
@@ -127,33 +117,43 @@ pi install npm:pi-memory
 }
 ```
 
-`mcp.json` — [Obscura](https://github.com/h4ckf0r0day/obscura) as a headless browser, with the
-hot tools loaded directly and the rest behind `tool_search`:
+`mcp.json` — [Playwright MCP](https://github.com/microsoft/playwright-mcp) as a headless browser,
+with the hot tools loaded directly and the rest of its 45 behind `tool_search`:
 
 ```json
 {
   "mcpServers": {
-    "obscura": {
-      "command": "~/.local/bin/obscura",
-      "args": ["mcp", "--stealth", "--allow-private-network"],
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y", "@playwright/mcp@0.0.84",
+        "--headless", "--isolated", "--no-webmcp",
+        "--caps", "vision,pdf,devtools",
+        "--output-dir", "/tmp/playwright-mcp"
+      ],
       "exposure": "deferred",
       "toolExposure": {
         "browser_navigate": "direct",
         "browser_snapshot": "direct",
         "browser_click": "direct",
-        "browser_fill": "direct",
+        "browser_type": "direct",
+        "browser_fill_form": "direct",
+        "browser_take_screenshot": "direct",
         "browser_evaluate": "direct",
-        "browser_screenshot": "direct",
-        "browser_markdown": "direct"
+        "browser_press_key": "direct"
       },
-      "description": "Headless browser (Obscura): navigate pages, click/fill, screenshots/PDF, console and network inspection."
+      "description": "Headless Chromium (Playwright): navigate pages, click/fill, snapshots, screenshots, PDF and network/console inspection."
     }
   }
 }
 ```
 
-`--allow-private-network` lets the browser reach `localhost` and the LAN, which the default
-blocks. Drop `--stealth` if a site breaks under its tracker blocking.
+`--isolated` keeps the profile in memory, so logins do not survive a session; `--no-webmcp` stops
+pages from registering their own tools; `--caps` adds PDF, vision and devtools tools; auto-named
+screenshots and snapshots land in `/tmp/playwright-mcp`, which macOS clears on reboot. File access
+stays restricted to the workspace root — no `--allow-unrestricted-file-access`. Against Cloudflare
+and friends Playwright is detectable: prefer `web_search`/`fetch_content`, and treat a 403 as an
+answer instead of fighting it.
 
 `bottom.json` is written by the extension itself and every default lives in the code, so it only
 needs to exist to override something:
