@@ -1,0 +1,19 @@
+{
+  "exaApiKey": "<redacted>",
+  "braveApiKey": "<redacted>",
+  "model": "gpt-6-luna",
+  "searchRouting": {
+    "providers": [
+      "brave",
+      "exa",
+      "deepseek"
+    ],
+    "fallbackOn": [
+      "transient",
+      "quota",
+      "network",
+      "invalid-response",
+      "empty"
+    ]
+  }
+}

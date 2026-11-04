@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "dashboard": "auto",
+  "dashboardPlacement": "aboveEditor",
+  "icons": "unicode",
+  "frameEditor": true,
+  "spinner": true,
+  "show": {
+    "ctx": true,
+    "tokens": true,
+    "cost": true,
+    "cache": true,
+    "model": true,
+    "thinking": true,
+    "cwd": true,
+    "git": true,
+    "session": true,
+    "clock": true,
+    "tool": true,
+    "statuses": true
+  }
+}

@@ -83,12 +83,15 @@ pi install npm:@juicesharp/rpiv-ask-user-question
 pi install npm:@juicesharp/rpiv-advisor
 pi install npm:@dietrichgebert/ponytail
 pi install npm:pi-memory
+pi install npm:pi-subagents
+pi install npm:pi-web-access
 ```
 
 ## Config the package does not carry
 
 `pi install` only manages extensions, skills, prompts and themes. The rest of my setup is
-`~/.pi/agent`:
+`~/.pi/agent`, and this repo keeps a copy of it in [`config/`](config) so a new machine can be
+rebuilt from here. Copy the files over by hand — nothing restores them automatically:
 
 `settings.json` — theme, default model, tool defaults, compaction and the package list:
 
@@ -101,18 +104,48 @@ pi install npm:pi-memory
   "hideThinkingBlock": true,
   "enableInstallTelemetry": false,
   "collapseChangelog": false,
+  "defaultProjectTrust": "always",
+  "terminal": {
+    "showTerminalProgress": true
+  },
   "packages": [
     "git:github.com/edmand46/pi-kit",
-    "npm:@juicesharp/rpiv-todo",
-    "npm:@juicesharp/rpiv-ask-user-question",
     "npm:@dietrichgebert/ponytail",
+    "npm:@juicesharp/rpiv-advisor",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-todo",
     "npm:pi-memory",
-    "npm:@juicesharp/rpiv-advisor"
+    "npm:pi-subagents",
+    "npm:pi-web-access"
   ],
-  "defaultTools": ["+grep", "+find", "+ls"],
+  "defaultTools": [
+    "+grep",
+    "+find",
+    "+ls"
+  ],
   "compaction": {
     "reserveTokens": 120000,
     "keepRecentTokens": 1000
+  },
+  "subagents": {
+    "defaultThinking": "high",
+    "defaultModel": "deepseek/deepseek-flash",
+    "agentOverrides": {
+      "scout": {
+        "thinking": "high"
+      },
+      "researcher": {
+        "thinking": "high",
+        "extensions": [
+          "npm:pi-web-access"
+        ]
+      },
+      "evidence-auditor": {
+        "extensions": [
+          "npm:pi-web-access"
+        ]
+      }
+    }
   }
 }
 ```
@@ -183,7 +216,13 @@ needs to exist to override something:
 }
 ```
 
-`auth.json`, `sessions/`, `models-store.json` and `memory/` stay on the machine.
+`web-search.json` (the `pi-web-access` config) is not backed up with its keys: [`config/web-search.example.json`](config/web-search.example.json)
+carries the routing and model with `<redacted>` in both key fields. Fill in your own keys after
+copying it.
+
+`auth.json`, `sessions/`, `models-store.json` and `memory/` stay on the machine: credentials, chat
+history, the pi.dev model catalog cache (pi rebuilds it on its own) and long-term memory. Custom
+providers or models, if I ever add any, would live in `models.json` — that file is not needed today.
 
 ## License
 

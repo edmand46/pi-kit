@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.84",
+        "--headless",
+        "--isolated",
+        "--no-webmcp",
+        "--caps",
+        "vision,pdf,devtools",
+        "--output-dir",
+        "/tmp/playwright-mcp"
+      ],
+      "exposure": "deferred",
+      "toolExposure": {
+        "browser_navigate": "direct",
+        "browser_snapshot": "direct",
+        "browser_click": "direct",
+        "browser_type": "direct",
+        "browser_fill_form": "direct",
+        "browser_take_screenshot": "direct",
+        "browser_evaluate": "direct",
+        "browser_press_key": "direct"
+      },
+      "description": "Headless Chromium (Playwright): navigate pages, click/fill, snapshots, screenshots, PDF and network/console inspection."
+    }
+  }
+}
