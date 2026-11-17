@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { getAgentDir } from "@earendil-works/pi-coding-agent";
+import { DEFAULT_COMPACTION_SETTINGS, estimateTokens, getAgentDir } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 
 const ENTRY_TYPE = "idle-compact";
@@ -53,6 +53,42 @@ function loadConfig(ctx: ExtensionContext): IdleCompactConfig {
 	}
 }
 
+/**
+ * Tokens pi keeps verbatim on compaction (settings.json → compaction.keepRecentTokens).
+ * History below that threshold lands entirely in the kept tail, so pi has nothing to summarize.
+ */
+function keepRecentTokens(): number {
+	try {
+		const raw = readFileSync(join(getAgentDir(), "settings.json"), "utf8");
+		const parsed = JSON.parse(raw) as { compaction?: { keepRecentTokens?: unknown } };
+		return positive(parsed.compaction?.keepRecentTokens, DEFAULT_COMPACTION_SETTINGS.keepRecentTokens);
+	} catch {
+		return DEFAULT_COMPACTION_SETTINGS.keepRecentTokens;
+	}
+}
+
+/**
+ * Whether pi would find history to summarize. `ctx.compact()` throws
+ * "Nothing to compact (session too small)" otherwise, surfacing as an error in the transcript.
+ */
+function hasSummarizableHistory(ctx: ExtensionContext): boolean {
+	const branch = ctx.sessionManager.getBranch();
+	if (branch.length === 0 || branch[branch.length - 1]?.type === "compaction") {
+		return false;
+	}
+	const keep = keepRecentTokens();
+	let tokens = 0;
+	for (const entry of ctx.sessionManager.buildSessionProjection().entries) {
+		for (const message of entry.messages) {
+			tokens += estimateTokens(message);
+			if (tokens > keep) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 function formatTokens(tokens: number): string {
 	return tokens >= 1000 ? `${Math.round(tokens / 1000)}k` : `${tokens}`;
 }
@@ -98,6 +134,12 @@ export default function (pi: ExtensionAPI) {
 			},
 			onError: (error) => {
 				ctx.ui.setStatus(ENTRY_TYPE, undefined);
+				// The guard can still race a growing session: pi treats "nothing to summarize" as a hard
+				// error, but for an idle attempt it only means there was no work to do. Retry later.
+				if (/nothing to compact|already compacted/i.test(error.message)) {
+					compacted = false;
+					return;
+				}
 				pi.appendEntry<IdleCompactRecord>(ENTRY_TYPE, {
 					at: Date.now(),
 					idleMinutes: config.idleMinutes,
@@ -120,7 +162,7 @@ export default function (pi: ExtensionAPI) {
 					return;
 				}
 				const tokens = eligible(ctx);
-				if (tokens !== null) {
+				if (tokens !== null && hasSummarizableHistory(ctx)) {
 					compactNow(ctx, tokens);
 				}
 			},
