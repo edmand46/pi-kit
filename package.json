@@ -16,11 +16,12 @@
     "extensions": [
       "./extensions/log-style.ts",
       "./extensions/idle-compact.ts",
+      "./extensions/scheduler.ts",
       "./extensions/bottom/index.ts"
     ],
     "skills": [
-      "./skills/orchestrator",
       "./skills/grilling",
+      "./skills/brainstorm",
       "./skills/frontend-design"
     ]
   }

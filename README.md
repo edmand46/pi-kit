@@ -1,7 +1,7 @@
 # pi-kit
 
 My [pi](https://github.com/earendil-works/pi-coding-agent) setup as one package: the bottom
-chrome, compact tool rows, idle compaction and the skills I work with.
+chrome, compact tool rows, idle compaction, scheduled prompts and the skills I work with.
 
 ## Install
 
@@ -61,15 +61,37 @@ Config is optional and lives in `~/.pi/agent/idle-compact.json`:
 { "idleMinutes": 15, "minTokens": 20000 }
 ```
 
+### `scheduler`
+
+Hands the agent a task later, or over and over, without you sitting in front of it.
+
+```bash
+/schedule in 90m check whether CI on the release branch is still green
+/schedule every 30m look at open review comments and answer the new ones
+/schedules                        # id, next run, text
+/unschedule 9i5q
+```
+
+Units are `s m h d`; `in` needs at least 5s, `every` at least 1m, at most 20 tasks of 2000
+characters each. A task is a plain user message, prefixed with `[scheduled 2026-11-05 09:00]` so the
+transcript shows it was not typed. When the agent is busy the task is delivered as a follow-up
+instead of interrupting the answer.
+
+Tasks live in `~/.pi/agent/scheduler.json`, shared by every project and every pi session. A file
+lock keeps two open windows from running the same task twice, and a task missed while pi was closed
+runs once on the next start with its schedule moved back into the future. The
+status line shows how many tasks are pending. TUI only: a headless `pi -p` run neither fires nor
+claims anything.
+
 ## Skills
 
 | Skill | What it does |
 | --- | --- |
-| `orchestrator` | Plans and verifies in the main session, delegates every change to worker subagents |
 | `grilling` | Interviews you through `ask_user_question` in rounds until a plan has no assumptions left |
+| `brainstorm` | Divergent idea pool → ranked shortlist → depth on the ones you pick, for product and technical decisions |
 | `frontend-design` | Aesthetic direction, typography, palette, layout and motion for pages whose look matters |
 
-`orchestrator` needs the `subagent` tool, `grilling` needs `ask_user_question`. `frontend-design`
+`grilling` needs `ask_user_question`. `frontend-design`
 is vendored from `anthropics/claude-plugins-official` and `anthropics/claude-cookbooks`; its
 licenses sit next to the skill.
 
@@ -81,9 +103,7 @@ These are separate pi packages, installed once into personal settings:
 pi install npm:@juicesharp/rpiv-todo
 pi install npm:@juicesharp/rpiv-ask-user-question
 pi install npm:@juicesharp/rpiv-advisor
-pi install npm:@dietrichgebert/ponytail
 pi install npm:pi-memory
-pi install npm:pi-subagents
 pi install npm:pi-web-access
 ```
 
@@ -110,12 +130,10 @@ rebuilt from here. Copy the files over by hand — nothing restores them automat
   },
   "packages": [
     "git:github.com/edmand46/pi-kit",
-    "npm:@dietrichgebert/ponytail",
     "npm:@juicesharp/rpiv-advisor",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-memory",
-    "npm:pi-subagents",
     "npm:pi-web-access"
   ],
   "defaultTools": [
@@ -125,27 +143,7 @@ rebuilt from here. Copy the files over by hand — nothing restores them automat
   ],
   "compaction": {
     "reserveTokens": 120000,
-    "keepRecentTokens": 1000
-  },
-  "subagents": {
-    "defaultThinking": "high",
-    "defaultModel": "deepseek/deepseek-flash",
-    "agentOverrides": {
-      "scout": {
-        "thinking": "high"
-      },
-      "researcher": {
-        "thinking": "high",
-        "extensions": [
-          "npm:pi-web-access"
-        ]
-      },
-      "evidence-auditor": {
-        "extensions": [
-          "npm:pi-web-access"
-        ]
-      }
-    }
+    "keepRecentTokens": 20000
   }
 }
 ```

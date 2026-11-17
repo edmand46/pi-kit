@@ -6,18 +6,16 @@
   "hideThinkingBlock": true,
   "enableInstallTelemetry": false,
   "collapseChangelog": false,
-  "defaultProjectTrust": "always",
+  "defaultProjectTrust": "ask",
   "terminal": {
     "showTerminalProgress": true
   },
   "packages": [
     "git:github.com/edmand46/pi-kit",
-    "npm:@dietrichgebert/ponytail",
     "npm:@juicesharp/rpiv-advisor",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-memory",
-    "npm:pi-subagents",
     "npm:pi-web-access"
   ],
   "defaultTools": [
@@ -28,25 +26,5 @@
   "compaction": {
     "reserveTokens": 120000,
     "keepRecentTokens": 1000
-  },
-  "subagents": {
-    "defaultThinking": "high",
-    "defaultModel": "deepseek/deepseek-flash",
-    "agentOverrides": {
-      "scout": {
-        "thinking": "high"
-      },
-      "researcher": {
-        "thinking": "high",
-        "extensions": [
-          "npm:pi-web-access"
-        ]
-      },
-      "evidence-auditor": {
-        "extensions": [
-          "npm:pi-web-access"
-        ]
-      }
-    }
   }
 }
